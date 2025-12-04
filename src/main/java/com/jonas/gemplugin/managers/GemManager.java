@@ -19,11 +19,13 @@ public class GemManager {
     
     private final GemPlugin plugin;
     private final NamespacedKey gemKey;
+    private final NamespacedKey timestampKey;
     private final Map<String, Gem> gems;
     
     public GemManager(GemPlugin plugin) {
         this.plugin = plugin;
         this.gemKey = new NamespacedKey(plugin, "gem_type");
+        this.timestampKey = new NamespacedKey(plugin, "gem_timestamp");
         this.gems = new HashMap<>();
         
         registerGems();
@@ -55,10 +57,38 @@ public class GemManager {
             meta.displayName(gem.getDisplayName());
             meta.lore(gem.getLore());
             meta.getPersistentDataContainer().set(gemKey, PersistentDataType.STRING, gemType.toLowerCase());
+            meta.getPersistentDataContainer().set(timestampKey, PersistentDataType.LONG, System.currentTimeMillis());
             item.setItemMeta(meta);
         }
         
         return item;
+    }
+    
+    /**
+     * Set the timestamp for a gem item
+     */
+    public void setGemTimestamp(ItemStack item) {
+        if (!isGem(item)) return;
+        
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null) {
+            meta.getPersistentDataContainer().set(timestampKey, PersistentDataType.LONG, System.currentTimeMillis());
+            item.setItemMeta(meta);
+        }
+    }
+    
+    /**
+     * Get the timestamp for a gem item
+     */
+    public long getGemTimestamp(ItemStack item) {
+        if (!isGem(item)) return Long.MAX_VALUE;
+        
+        ItemMeta meta = item.getItemMeta();
+        if (meta != null && meta.getPersistentDataContainer().has(timestampKey, PersistentDataType.LONG)) {
+            return meta.getPersistentDataContainer().get(timestampKey, PersistentDataType.LONG);
+        }
+        // If no timestamp, treat as very old (should be kept)
+        return 0L;
     }
     
     /**

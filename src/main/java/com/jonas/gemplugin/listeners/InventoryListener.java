@@ -55,20 +55,28 @@ public class InventoryListener implements Listener {
      */
     private void checkAndEnforceOneGem(Player player) {
         PlayerInventory inv = player.getInventory();
-        ItemStack firstGem = null;
-        int firstGemSlot = -1;
+        ItemStack oldestGem = null;
+        int oldestGemSlot = -1;
+        long oldestTimestamp = Long.MAX_VALUE;
         
-        // Check all inventory slots
+        // Check all inventory slots and find the oldest gem
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item != null && plugin.getGemManager().isGem(item)) {
-                if (firstGem == null) {
-                    firstGem = item;
-                    firstGemSlot = i;
+                long timestamp = plugin.getGemManager().getGemTimestamp(item);
+                if (oldestGem == null || timestamp < oldestTimestamp) {
+                    // If we already found a gem, remove it before tracking the new oldest
+                    if (oldestGem != null) {
+                        inv.setItem(oldestGemSlot, null);
+                        MessageUtils.sendError(player, "You can only have one gem at a time! The newest gem was removed.");
+                    }
+                    oldestGem = item;
+                    oldestGemSlot = i;
+                    oldestTimestamp = timestamp;
                 } else {
-                    // Found a second gem, remove it
+                    // This gem is newer, remove it
                     inv.setItem(i, null);
-                    MessageUtils.sendError(player, "You can only have one gem at a time!");
+                    MessageUtils.sendError(player, "You can only have one gem at a time! The newest gem was removed.");
                 }
             }
         }

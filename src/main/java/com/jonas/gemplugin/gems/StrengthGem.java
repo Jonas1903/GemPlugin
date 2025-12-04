@@ -101,15 +101,25 @@ public class StrengthGem extends Gem {
     
     @Override
     public void onPlayerAttack(Player attacker, EntityDamageByEntityEvent event) {
-        // 1% chance for double damage
-        if (random.nextInt(100) < 1) {
-            event.setDamage(event.getDamage() * 2);
-        }
+        double baseDamage = event.getDamage();
         
         // Critical hits when primary is active
         if (critModeActive.contains(attacker.getUniqueId())) {
             // Make it a critical hit by multiplying damage by 1.5
-            event.setDamage(event.getDamage() * 1.5);
+            event.setDamage(baseDamage * 1.5);
+            // Show critical hit particles
+            if (event.getEntity() instanceof org.bukkit.entity.LivingEntity) {
+                attacker.getWorld().spawnParticle(
+                    org.bukkit.Particle.CRIT, 
+                    event.getEntity().getLocation().add(0, 1, 0), 
+                    15, 
+                    0.3, 0.3, 0.3, 
+                    0.1
+                );
+            }
+        } else if (random.nextInt(100) < 1) {
+            // 1% chance for double damage (only if not in crit mode)
+            event.setDamage(baseDamage * 2);
         }
     }
     

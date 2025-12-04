@@ -159,7 +159,7 @@ public class FireGem extends Gem {
                     }
                 }
                 
-                ticksRemaining--;
+                ticksRemaining -= 5; // Decrement by 5 since we run every 5 ticks
             }
         }, 0L, 5L); // Run every 5 ticks (4 times per second)
         
