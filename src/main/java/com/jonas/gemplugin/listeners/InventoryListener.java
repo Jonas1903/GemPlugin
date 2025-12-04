@@ -8,9 +8,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -27,14 +26,40 @@ public class InventoryListener implements Listener {
     }
     
     @EventHandler(priority = EventPriority.MONITOR)
+    public void onEntityPickupItem(EntityPickupItemEvent event) {
+        if (event.isCancelled()) return;
+        if (!(event.getEntity() instanceof Player)) return;
+        
+        Player player = (Player) event.getEntity();
+        ItemStack item = event.getItem().getItemStack();
+        
+        // Record timestamp when gem is picked up
+        if (plugin.getGemManager().isGem(item)) {
+            plugin.getGemManager().recordGemInInventory(player, item);
+        }
+        
+        // Delay check to next tick to ensure inventory is updated
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            checkAndEnforceOneGem(player);
+            updatePassiveEffects(player);
+        });
+    }
+    
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent event) {
         if (event.isCancelled()) return;
         if (!(event.getWhoClicked() instanceof Player)) return;
         
         Player player = (Player) event.getWhoClicked();
         
+        // Record timestamp for any gem that enters the player's inventory
+        ItemStack cursor = event.getCursor();
+        ItemStack current = event.getCurrentItem();
+        
         // Delay check to next tick to ensure inventory is updated
         Bukkit.getScheduler().runTask(plugin, () -> {
+            // Scan inventory for any gems and record their timestamps
+            recordAllGemsInInventory(player);
             checkAndEnforceOneGem(player);
             updatePassiveEffects(player);
         });
@@ -51,32 +76,54 @@ public class InventoryListener implements Listener {
     }
     
     /**
+     * Record all gems currently in a player's inventory
+     */
+    private void recordAllGemsInInventory(Player player) {
+        PlayerInventory inv = player.getInventory();
+        for (int i = 0; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
+            if (item != null && plugin.getGemManager().isGem(item)) {
+                String gemType = plugin.getGemManager().getGemType(item);
+                // Only record if this gem type isn't already tracked for this player
+                if (plugin.getGemManager().getPlayerGemTimestamp(player, gemType) == Long.MAX_VALUE) {
+                    plugin.getGemManager().recordGemInInventory(player, item);
+                }
+            }
+        }
+    }
+    
+    /**
      * Check if player has more than one gem and remove extras
      */
     private void checkAndEnforceOneGem(Player player) {
         PlayerInventory inv = player.getInventory();
         ItemStack oldestGem = null;
         int oldestGemSlot = -1;
+        String oldestGemType = null;
         long oldestTimestamp = Long.MAX_VALUE;
         
-        // First pass: find the oldest gem
+        // First pass: find the gem that has been in THIS player's inventory the longest
         for (int i = 0; i < inv.getSize(); i++) {
             ItemStack item = inv.getItem(i);
             if (item != null && plugin.getGemManager().isGem(item)) {
-                long timestamp = plugin.getGemManager().getGemTimestamp(item);
+                String gemType = plugin.getGemManager().getGemType(item);
+                long timestamp = plugin.getGemManager().getPlayerGemTimestamp(player, gemType);
                 if (timestamp < oldestTimestamp) {
                     oldestGem = item;
                     oldestGemSlot = i;
+                    oldestGemType = gemType;
                     oldestTimestamp = timestamp;
                 }
             }
         }
         
-        // Second pass: remove all gems except the oldest
+        // Second pass: remove all gems except the one that's been in inventory longest
         if (oldestGem != null) {
             for (int i = 0; i < inv.getSize(); i++) {
                 ItemStack item = inv.getItem(i);
                 if (item != null && plugin.getGemManager().isGem(item) && i != oldestGemSlot) {
+                    String gemType = plugin.getGemManager().getGemType(item);
+                    plugin.getGemManager().removePlayerGemTimestamp(player, gemType);
                     inv.setItem(i, null);
                     MessageUtils.sendError(player, "You can only have one gem at a time! The newest gem was removed.");
                 }

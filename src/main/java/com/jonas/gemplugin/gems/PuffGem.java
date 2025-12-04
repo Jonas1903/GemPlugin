@@ -21,6 +21,7 @@ public class PuffGem extends Gem {
     
     private final Set<UUID> hasDoubleJump = new HashSet<>();
     private final Map<UUID, Long> lastJumpTime = new HashMap<>();
+    private final Map<UUID, Boolean> canDoubleJump = new HashMap<>();
     private final Random random = new Random();
     
     public PuffGem(GemPlugin plugin) {
@@ -63,6 +64,7 @@ public class PuffGem extends Gem {
     public void applyPassiveEffects(Player player) {
         hasDoubleJump.add(player.getUniqueId());
         lastJumpTime.put(player.getUniqueId(), 0L);
+        canDoubleJump.put(player.getUniqueId(), player.isOnGround());
         // Allow flight for double jump (but not flying)
         if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && 
             player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
@@ -74,6 +76,7 @@ public class PuffGem extends Gem {
     public void removePassiveEffects(Player player) {
         hasDoubleJump.remove(player.getUniqueId());
         lastJumpTime.remove(player.getUniqueId());
+        canDoubleJump.remove(player.getUniqueId());
         // Remove flight ability if not in creative/spectator
         if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && 
             player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
@@ -121,6 +124,11 @@ public class PuffGem extends Gem {
             return false;
         }
         
+        // Check if player can double jump (must have landed since last jump)
+        if (!canDoubleJump.getOrDefault(player.getUniqueId(), false)) {
+            return false;
+        }
+        
         long now = System.currentTimeMillis();
         long lastJump = lastJumpTime.getOrDefault(player.getUniqueId(), 0L);
         int doubleJumpCooldown = plugin.getConfigManager().getCooldown("puff", "double-jump") * 1000;
@@ -135,10 +143,21 @@ public class PuffGem extends Gem {
             velocity.setY(0.6); // Double jump boost
             player.setVelocity(velocity);
             lastJumpTime.put(player.getUniqueId(), now);
+            canDoubleJump.put(player.getUniqueId(), false); // Disable until they land again
             return true;
         }
         
         return false;
+    }
+    
+    /**
+     * Enable double jump when player lands on ground
+     */
+    @Override
+    public void onPlayerMove(Player player, org.bukkit.event.player.PlayerMoveEvent event) {
+        if (player.isOnGround() && !canDoubleJump.getOrDefault(player.getUniqueId(), false)) {
+            canDoubleJump.put(player.getUniqueId(), true);
+        }
     }
     
     @Override
@@ -146,5 +165,6 @@ public class PuffGem extends Gem {
         super.cleanup(player);
         hasDoubleJump.remove(player.getUniqueId());
         lastJumpTime.remove(player.getUniqueId());
+        canDoubleJump.remove(player.getUniqueId());
     }
 }

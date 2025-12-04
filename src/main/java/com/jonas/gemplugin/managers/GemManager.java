@@ -11,6 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Manages gem creation and identification
@@ -21,12 +22,15 @@ public class GemManager {
     private final NamespacedKey gemKey;
     private final NamespacedKey timestampKey;
     private final Map<String, Gem> gems;
+    // Per-player gem timestamp tracking: UUID -> (gem_type -> timestamp)
+    private final Map<UUID, Map<String, Long>> playerGemTimestamps;
     
     public GemManager(GemPlugin plugin) {
         this.plugin = plugin;
         this.gemKey = new NamespacedKey(plugin, "gem_type");
         this.timestampKey = new NamespacedKey(plugin, "gem_timestamp");
         this.gems = new HashMap<>();
+        this.playerGemTimestamps = new HashMap<>();
         
         registerGems();
     }
@@ -148,5 +152,47 @@ public class GemManager {
      */
     public NamespacedKey getGemKey() {
         return gemKey;
+    }
+    
+    /**
+     * Record when a gem enters a player's inventory
+     */
+    public void recordGemInInventory(Player player, ItemStack gem) {
+        if (!isGem(gem)) return;
+        
+        String gemType = getGemType(gem);
+        if (gemType == null) return;
+        
+        playerGemTimestamps.computeIfAbsent(player.getUniqueId(), k -> new HashMap<>())
+                .put(gemType, System.currentTimeMillis());
+    }
+    
+    /**
+     * Get when a gem entered a player's inventory
+     */
+    public long getPlayerGemTimestamp(Player player, String gemType) {
+        Map<String, Long> timestamps = playerGemTimestamps.get(player.getUniqueId());
+        if (timestamps == null) return Long.MAX_VALUE;
+        return timestamps.getOrDefault(gemType, Long.MAX_VALUE);
+    }
+    
+    /**
+     * Remove a gem's timestamp from a player's tracking
+     */
+    public void removePlayerGemTimestamp(Player player, String gemType) {
+        Map<String, Long> timestamps = playerGemTimestamps.get(player.getUniqueId());
+        if (timestamps != null) {
+            timestamps.remove(gemType);
+            if (timestamps.isEmpty()) {
+                playerGemTimestamps.remove(player.getUniqueId());
+            }
+        }
+    }
+    
+    /**
+     * Clear all gem timestamps for a player (e.g., on disconnect)
+     */
+    public void clearPlayerGemTimestamps(Player player) {
+        playerGemTimestamps.remove(player.getUniqueId());
     }
 }
