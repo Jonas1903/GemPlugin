@@ -155,7 +155,8 @@ public class PuffGem extends Gem {
      */
     @Override
     public void onPlayerMove(Player player, org.bukkit.event.player.PlayerMoveEvent event) {
-        if (player.isOnGround() && !canDoubleJump.getOrDefault(player.getUniqueId(), false)) {
+        Boolean current = canDoubleJump.get(player.getUniqueId());
+        if (player.isOnGround() && (current == null || !current)) {
             canDoubleJump.put(player.getUniqueId(), true);
         }
     }

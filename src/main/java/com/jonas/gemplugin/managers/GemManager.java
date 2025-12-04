@@ -171,9 +171,9 @@ public class GemManager {
      * Get when a gem entered a player's inventory
      */
     public long getPlayerGemTimestamp(Player player, String gemType) {
-        Map<String, Long> timestamps = playerGemTimestamps.get(player.getUniqueId());
-        if (timestamps == null) return Long.MAX_VALUE;
-        return timestamps.getOrDefault(gemType, Long.MAX_VALUE);
+        return playerGemTimestamps
+                .getOrDefault(player.getUniqueId(), new HashMap<>())
+                .getOrDefault(gemType, Long.MAX_VALUE);
     }
     
     /**

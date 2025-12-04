@@ -52,10 +52,6 @@ public class InventoryListener implements Listener {
         
         Player player = (Player) event.getWhoClicked();
         
-        // Record timestamp for any gem that enters the player's inventory
-        ItemStack cursor = event.getCursor();
-        ItemStack current = event.getCurrentItem();
-        
         // Delay check to next tick to ensure inventory is updated
         Bukkit.getScheduler().runTask(plugin, () -> {
             // Scan inventory for any gems and record their timestamps
