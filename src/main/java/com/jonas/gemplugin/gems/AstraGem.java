@@ -24,6 +24,8 @@ import java.util.*;
  */
 public class AstraGem extends Gem {
     
+    private static final int INVISIBILITY_BUFFER_TICKS = 10; // Buffer to prevent flickering
+    
     private final Map<UUID, BukkitTask> passiveTasks = new HashMap<>();
     private final Set<UUID> currentlyInvisible = new HashSet<>();
     
@@ -106,42 +108,43 @@ public class AstraGem extends Gem {
         int invisDuration = plugin.getConfigManager().getDuration("astra", "passive-invis");
         int cycleDuration = plugin.getConfigManager().getDuration("astra", "passive-cycle");
         
-        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-            boolean isInvisPhase = true; // Start with invisibility
+        // Create a holder class for mutable state in lambda
+        class CycleState {
+            boolean isInvisPhase = true;
             int ticksUntilSwitch = invisDuration * 20;
+        }
+        final CycleState state = new CycleState();
+        
+        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (!player.isOnline()) {
+                stopInvisibilityCycle(player);
+                return;
+            }
             
-            @Override
-            public void run() {
-                if (!player.isOnline()) {
-                    stopInvisibilityCycle(player);
-                    return;
-                }
+            // Check if still holding the gem
+            Gem activeGem = plugin.getGemManager().getActiveGem(player);
+            if (!(activeGem instanceof AstraGem)) {
+                stopInvisibilityCycle(player);
+                return;
+            }
+            
+            state.ticksUntilSwitch--;
+            
+            if (state.ticksUntilSwitch <= 0) {
+                // Switch phase
+                state.isInvisPhase = !state.isInvisPhase;
                 
-                // Check if still holding the gem
-                Gem activeGem = plugin.getGemManager().getActiveGem(player);
-                if (!(activeGem instanceof AstraGem)) {
-                    stopInvisibilityCycle(player);
-                    return;
-                }
-                
-                ticksUntilSwitch--;
-                
-                if (ticksUntilSwitch <= 0) {
-                    // Switch phase
-                    isInvisPhase = !isInvisPhase;
-                    
-                    if (isInvisPhase) {
-                        // Apply invisibility
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 
-                                invisDuration * 20 + 10, 0, false, false, true));
-                        currentlyInvisible.add(player.getUniqueId());
-                        ticksUntilSwitch = invisDuration * 20;
-                    } else {
-                        // Remove invisibility
-                        player.removePotionEffect(PotionEffectType.INVISIBILITY);
-                        currentlyInvisible.remove(player.getUniqueId());
-                        ticksUntilSwitch = cycleDuration * 20;
-                    }
+                if (state.isInvisPhase) {
+                    // Apply invisibility
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 
+                            invisDuration * 20 + INVISIBILITY_BUFFER_TICKS, 0, false, false, true));
+                    currentlyInvisible.add(player.getUniqueId());
+                    state.ticksUntilSwitch = invisDuration * 20;
+                } else {
+                    // Remove invisibility
+                    player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    currentlyInvisible.remove(player.getUniqueId());
+                    state.ticksUntilSwitch = cycleDuration * 20;
                 }
             }
         }, 0L, 1L); // Run every tick for precise timing
@@ -150,7 +153,7 @@ public class AstraGem extends Gem {
         
         // Apply initial invisibility
         player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 
-                invisDuration * 20 + 10, 0, false, false, true));
+                invisDuration * 20 + INVISIBILITY_BUFFER_TICKS, 0, false, false, true));
         currentlyInvisible.add(player.getUniqueId());
     }
     
