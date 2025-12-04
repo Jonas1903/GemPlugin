@@ -26,10 +26,13 @@ public class BlockListener implements Listener {
         if (event.isCancelled()) return;
         
         // Check if the block is part of an ice cage
-        IceGem iceGem = (IceGem) plugin.getGemManager().getGem("ice");
-        if (iceGem != null && iceGem.isIceCageBlock(event.getBlock().getLocation())) {
-            event.setCancelled(true);
-            MessageUtils.sendError(event.getPlayer(), "You cannot break ice cage blocks!");
+        Gem gem = plugin.getGemManager().getGem("ice");
+        if (gem instanceof IceGem) {
+            IceGem iceGem = (IceGem) gem;
+            if (iceGem.isIceCageBlock(event.getBlock().getLocation())) {
+                event.setCancelled(true);
+                MessageUtils.sendError(event.getPlayer(), "You cannot break ice cage blocks!");
+            }
         }
     }
     
