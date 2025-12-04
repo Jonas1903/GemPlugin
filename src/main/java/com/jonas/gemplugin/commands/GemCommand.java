@@ -83,6 +83,8 @@ public class GemCommand implements CommandExecutor, TabCompleter {
         }
         
         target.getInventory().addItem(gem);
+        // Record timestamp when gem is given to player
+        plugin.getGemManager().recordGemInInventory(target, gem);
         sender.sendMessage("§aGave " + gemType + " gem to " + target.getName());
         
         if (sender instanceof Player) {

@@ -86,6 +86,9 @@ public class PlayerListener implements Listener {
         
         // Clear cooldowns
         plugin.getCooldownManager().clearAllCooldowns(player);
+        
+        // Clear gem timestamps
+        plugin.getGemManager().clearPlayerGemTimestamps(player);
     }
     
     @EventHandler
