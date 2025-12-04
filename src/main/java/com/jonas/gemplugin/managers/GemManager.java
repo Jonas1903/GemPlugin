@@ -88,7 +88,7 @@ public class GemManager {
             return meta.getPersistentDataContainer().get(timestampKey, PersistentDataType.LONG);
         }
         // If no timestamp, treat as very old (should be kept)
-        return 0L;
+        return Long.MIN_VALUE;
     }
     
     /**

@@ -111,7 +111,7 @@ public class StrengthGem extends Gem {
             if (event.getEntity() instanceof org.bukkit.entity.LivingEntity) {
                 attacker.getWorld().spawnParticle(
                     org.bukkit.Particle.CRIT, 
-                    event.getEntity().getLocation().add(0, 1, 0), 
+                    event.getEntity().getLocation().clone().add(0, 1, 0), 
                     15, 
                     0.3, 0.3, 0.3, 
                     0.1
