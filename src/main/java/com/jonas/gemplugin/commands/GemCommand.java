@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GemCommand implements CommandExecutor, TabCompleter {
     
     private final GemPlugin plugin;
-    private final List<String> gemTypes = Arrays.asList("strength", "fire", "speed", "puff", "ice", "invis");
+    private final List<String> gemTypes = Arrays.asList("strength", "fire", "speed", "ice", "invis", "astra");
     
     public GemCommand(GemPlugin plugin) {
         this.plugin = plugin;

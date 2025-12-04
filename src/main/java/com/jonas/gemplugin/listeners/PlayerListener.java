@@ -2,7 +2,6 @@ package com.jonas.gemplugin.listeners;
 
 import com.jonas.gemplugin.GemPlugin;
 import com.jonas.gemplugin.gems.Gem;
-import com.jonas.gemplugin.gems.PuffGem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,8 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
-import org.bukkit.GameMode;
 
 /**
  * Handles player events for passive gem abilities
@@ -89,28 +86,5 @@ public class PlayerListener implements Listener {
         
         // Clear gem timestamps
         plugin.getGemManager().clearPlayerGemTimestamps(player);
-    }
-    
-    @EventHandler
-    public void onPlayerToggleFlight(PlayerToggleFlightEvent event) {
-        Player player = event.getPlayer();
-        
-        // Only handle double jump for non-creative/spectator players
-        if (player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR) {
-            return;
-        }
-        
-        Gem gem = plugin.getGemManager().getActiveGem(player);
-        if (gem instanceof PuffGem) {
-            PuffGem puffGem = (PuffGem) gem;
-            if (plugin.getConfigManager().isGemEnabled(gem.getName())) {
-                if (puffGem.tryDoubleJump(player)) {
-                    event.setCancelled(true);
-                    // Reset flight ability immediately so player can double jump again after cooldown
-                    player.setFlying(false);
-                    player.setAllowFlight(true);
-                }
-            }
-        }
     }
 }
