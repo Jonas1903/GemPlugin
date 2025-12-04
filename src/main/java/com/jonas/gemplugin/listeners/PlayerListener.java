@@ -103,8 +103,9 @@ public class PlayerListener implements Listener {
             if (plugin.getConfigManager().isGemEnabled(gem.getName())) {
                 if (puffGem.tryDoubleJump(player)) {
                     event.setCancelled(true);
-                    player.setAllowFlight(false);
+                    // Reset flight ability immediately so player can double jump again after cooldown
                     player.setFlying(false);
+                    player.setAllowFlight(true);
                 }
             }
         }

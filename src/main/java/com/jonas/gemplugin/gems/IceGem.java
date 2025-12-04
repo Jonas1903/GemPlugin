@@ -28,6 +28,7 @@ public class IceGem extends Gem {
     
     private final Set<UUID> onIce = new HashSet<>();
     private final Map<UUID, IceCage> activeCages = new HashMap<>();
+    private final Set<Location> allCageBlocks = new HashSet<>();
     
     public IceGem(GemPlugin plugin) {
         super(plugin);
@@ -101,8 +102,8 @@ public class IceGem extends Gem {
     @Override
     public void onPlayerMove(Player player, PlayerMoveEvent event) {
         Location loc = player.getLocation();
-        Block blockBelow = loc.subtract(0, 1, 0).getBlock();
-        Block blockAt = player.getLocation().getBlock();
+        Block blockBelow = loc.clone().subtract(0, 1, 0).getBlock();
+        Block blockAt = loc.getBlock();
         
         boolean touchingIce = isIceBlock(blockBelow) || isIceBlock(blockAt);
         
@@ -145,6 +146,7 @@ public class IceGem extends Gem {
                         Block block = blockLoc.getBlock();
                         if (block.getType() == Material.AIR) {
                             cageBlocks.add(blockLoc);
+                            allCageBlocks.add(blockLoc);
                             block.setType(Material.BLUE_ICE);
                         }
                     }
@@ -194,12 +196,20 @@ public class IceGem extends Gem {
         if (cage != null) {
             cage.task.cancel();
             for (Location loc : cage.blocks) {
+                allCageBlocks.remove(loc);
                 Block block = loc.getBlock();
                 if (block.getType() == Material.BLUE_ICE) {
                     block.setType(Material.AIR);
                 }
             }
         }
+    }
+    
+    /**
+     * Check if a block is part of an ice cage
+     */
+    public boolean isIceCageBlock(Location location) {
+        return allCageBlocks.contains(location);
     }
     
     @Override

@@ -113,13 +113,11 @@ public class CooldownManager {
             int remaining = getRemainingCooldown(player, abilityKey);
             if (remaining <= 0) {
                 CooldownDisplay.clearXPBar(player);
-                CooldownDisplay.clearScoreboard(player);
                 stopDisplayTask(player);
                 return;
             }
             
             CooldownDisplay.updateXPBar(player, remaining, maxSeconds);
-            CooldownDisplay.updateScoreboard(player, getGemName(abilityKey), remaining);
         }, 0L, 20L); // Run every second (20 ticks)
         
         displayTasks.put(uuid, task);

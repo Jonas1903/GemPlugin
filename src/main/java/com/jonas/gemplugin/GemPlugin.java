@@ -3,6 +3,7 @@ package com.jonas.gemplugin;
 import com.jonas.gemplugin.commands.GemCommand;
 import com.jonas.gemplugin.commands.TrustCommand;
 import com.jonas.gemplugin.commands.UntrustCommand;
+import com.jonas.gemplugin.listeners.BlockListener;
 import com.jonas.gemplugin.listeners.GemListener;
 import com.jonas.gemplugin.listeners.InventoryListener;
 import com.jonas.gemplugin.listeners.PlayerListener;
@@ -66,6 +67,7 @@ public class GemPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GemListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
+        getServer().getPluginManager().registerEvents(new BlockListener(this), this);
     }
     
     // Getter methods for managers
