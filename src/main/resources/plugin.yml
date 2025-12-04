@@ -1,0 +1,26 @@
+name: GemPlugin
+version: 1.0
+main: com.jonas.gemplugin.GemPlugin
+api-version: '1.21'
+author: Jonas
+description: YouTuber-style Gems system for Minecraft
+
+commands:
+  gem:
+    description: Manage gems
+    usage: /gem <give|enable|disable|reload> [args]
+    permission: gemplugin.admin
+  trust:
+    description: Trust a player (gem abilities won't affect them)
+    usage: /trust <player>
+  untrust:
+    description: Remove trust from a player
+    usage: /untrust <player>
+
+permissions:
+  gemplugin.admin:
+    description: Allows access to all gem commands
+    default: op
+  gemplugin.trust:
+    description: Allows players to trust/untrust others
+    default: true

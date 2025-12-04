@@ -1,0 +1,37 @@
+# Cooldowns in seconds
+cooldowns:
+  strength:
+    primary: 60
+  fire:
+    primary: 45
+  speed:
+    primary: 30
+  puff:
+    double-jump: 5
+    primary: 20
+  ice:
+    primary: 60
+  invis:
+    primary: 45
+
+# Duration in seconds
+durations:
+  strength:
+    primary: 20
+  fire:
+    primary: 15
+  speed:
+    primary: 15
+  ice:
+    primary: 20
+  invis:
+    primary: 15
+
+# Enabled gems
+enabled-gems:
+  strength: true
+  fire: true
+  speed: true
+  puff: true
+  ice: true
+  invis: true
