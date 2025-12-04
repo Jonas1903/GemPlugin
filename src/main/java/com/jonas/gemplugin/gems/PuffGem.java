@@ -63,12 +63,23 @@ public class PuffGem extends Gem {
     public void applyPassiveEffects(Player player) {
         hasDoubleJump.add(player.getUniqueId());
         lastJumpTime.put(player.getUniqueId(), 0L);
+        // Allow flight for double jump (but not flying)
+        if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && 
+            player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
+            player.setAllowFlight(true);
+        }
     }
     
     @Override
     public void removePassiveEffects(Player player) {
         hasDoubleJump.remove(player.getUniqueId());
         lastJumpTime.remove(player.getUniqueId());
+        // Remove flight ability if not in creative/spectator
+        if (player.getGameMode() != org.bukkit.GameMode.CREATIVE && 
+            player.getGameMode() != org.bukkit.GameMode.SPECTATOR) {
+            player.setAllowFlight(false);
+            player.setFlying(false);
+        }
     }
     
     @Override
