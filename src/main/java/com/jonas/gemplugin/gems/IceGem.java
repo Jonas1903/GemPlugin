@@ -21,12 +21,12 @@ import java.util.*;
 
 /**
  * Ice Gem implementation
- * Passive: Speed IV when on ice
+ * Passive: Speed IV for 3 seconds when touching ice
  * Primary: Creates ice cage, enemies get Slowness II
  */
 public class IceGem extends Gem {
     
-    private final Set<UUID> onIce = new HashSet<>();
+    private final Map<UUID, BukkitTask> speedTasks = new HashMap<>();
     private final Map<UUID, IceCage> activeCages = new HashMap<>();
     private final Set<Location> allCageBlocks = new HashSet<>();
     
@@ -52,8 +52,8 @@ public class IceGem extends Gem {
         return Arrays.asList(
                 Component.text(""),
                 Component.text("Passive Abilities:").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false),
-                Component.text("• Speed IV when touching ice").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
-                Component.text("• Speed persists until non-ice").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("• Speed IV for 3s when touching ice").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
+                Component.text("• Timer resets on ice contact").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
                 Component.text(""),
                 Component.text("Primary Ability (Press F):").color(NamedTextColor.GOLD).decoration(TextDecoration.ITALIC, false),
                 Component.text("• Creates indestructible ice cage").color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false),
@@ -77,7 +77,7 @@ public class IceGem extends Gem {
     @Override
     public void removePassiveEffects(Player player) {
         player.removePotionEffect(PotionEffectType.SPEED);
-        onIce.remove(player.getUniqueId());
+        cancelSpeedTask(player);
         removeCage(player);
     }
     
@@ -108,16 +108,40 @@ public class IceGem extends Gem {
         boolean touchingIce = isIceBlock(blockBelow) || isIceBlock(blockAt);
         
         if (touchingIce) {
-            if (!onIce.contains(player.getUniqueId())) {
-                onIce.add(player.getUniqueId());
-                player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 
-                        PotionEffect.INFINITE_DURATION, 3, false, false, true));
-            }
-        } else {
-            if (onIce.contains(player.getUniqueId())) {
-                onIce.remove(player.getUniqueId());
+            // Reset the 3-second speed timer
+            applySpeedEffect(player);
+        }
+    }
+    
+    /**
+     * Apply Speed IV for 3 seconds, resetting the timer if already active
+     */
+    private void applySpeedEffect(Player player) {
+        // Cancel existing task if any
+        cancelSpeedTask(player);
+        
+        // Apply Speed IV
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 
+                60, 3, false, false, true)); // 60 ticks = 3 seconds
+        
+        // Schedule removal after 3 seconds
+        BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            if (player.isOnline()) {
                 player.removePotionEffect(PotionEffectType.SPEED);
             }
+            speedTasks.remove(player.getUniqueId());
+        }, 60L); // 60 ticks = 3 seconds
+        
+        speedTasks.put(player.getUniqueId(), task);
+    }
+    
+    /**
+     * Cancel the speed removal task
+     */
+    private void cancelSpeedTask(Player player) {
+        BukkitTask task = speedTasks.remove(player.getUniqueId());
+        if (task != null) {
+            task.cancel();
         }
     }
     
@@ -215,7 +239,7 @@ public class IceGem extends Gem {
     @Override
     public void cleanup(Player player) {
         super.cleanup(player);
-        onIce.remove(player.getUniqueId());
+        cancelSpeedTask(player);
         removeCage(player);
     }
     

@@ -6,9 +6,8 @@ cooldowns:
     primary: 45
   speed:
     primary: 30
-  puff:
-    double-jump: 5
-    primary: 20
+  astra:
+    primary: 30
   ice:
     primary: 60
   invis:
@@ -26,12 +25,15 @@ durations:
     primary: 20
   invis:
     primary: 15
+  astra:
+    passive-invis: 5
+    passive-cycle: 5
 
 # Enabled gems
 enabled-gems:
   strength: true
   fire: true
   speed: true
-  puff: true
   ice: true
   invis: true
+  astra: true

@@ -42,9 +42,9 @@ public class GemManager {
         gems.put("strength", new StrengthGem(plugin));
         gems.put("fire", new FireGem(plugin));
         gems.put("speed", new SpeedGem(plugin));
-        gems.put("puff", new PuffGem(plugin));
         gems.put("ice", new IceGem(plugin));
         gems.put("invis", new InvisGem(plugin));
+        gems.put("astra", new AstraGem(plugin));
     }
     
     /**
