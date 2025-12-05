@@ -171,7 +171,7 @@ public class IceGem extends Gem {
                         if (block.getType() == Material.AIR) {
                             cageBlocks.add(blockLoc);
                             allCageBlocks.add(blockLoc);
-                            block.setType(Material.BLUE_ICE);
+                            block.setType(Material.HONEY_BLOCK);
                         }
                     }
                 }
@@ -222,7 +222,7 @@ public class IceGem extends Gem {
             for (Location loc : cage.blocks) {
                 allCageBlocks.remove(loc);
                 Block block = loc.getBlock();
-                if (block.getType() == Material.BLUE_ICE) {
+                if (block.getType() == Material.HONEY_BLOCK) {
                     block.setType(Material.AIR);
                 }
             }
