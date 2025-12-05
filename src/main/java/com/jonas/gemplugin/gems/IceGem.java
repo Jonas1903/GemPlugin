@@ -157,7 +157,8 @@ public class IceGem extends Gem {
      * Create a unique string key for a location based on world and block coordinates
      */
     private String getLocationKey(Location loc) {
-        return loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ();
+        String worldName = loc.getWorld() != null ? loc.getWorld().getName() : "unknown";
+        return worldName + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ();
     }
     
     private void createIceCage(Player player, int duration) {
