@@ -28,7 +28,7 @@ public class IceGem extends Gem {
     
     private final Map<UUID, BukkitTask> speedTasks = new HashMap<>();
     private final Map<UUID, IceCage> activeCages = new HashMap<>();
-    private final Set<Location> allCageBlocks = new HashSet<>();
+    private final Set<String> allCageBlocks = new HashSet<>();
     
     public IceGem(GemPlugin plugin) {
         super(plugin);
@@ -153,6 +153,13 @@ public class IceGem extends Gem {
                type == Material.FROSTED_ICE;
     }
     
+    /**
+     * Create a unique string key for a location based on world and block coordinates
+     */
+    private String getLocationKey(Location loc) {
+        return loc.getWorld().getName() + ":" + loc.getBlockX() + ":" + loc.getBlockY() + ":" + loc.getBlockZ();
+    }
+    
     private void createIceCage(Player player, int duration) {
         removeCage(player);
         
@@ -170,7 +177,7 @@ public class IceGem extends Gem {
                         Block block = blockLoc.getBlock();
                         if (block.getType() == Material.AIR) {
                             cageBlocks.add(blockLoc);
-                            allCageBlocks.add(blockLoc);
+                            allCageBlocks.add(getLocationKey(blockLoc));
                             block.setType(Material.HONEY_BLOCK);
                         }
                     }
@@ -220,7 +227,7 @@ public class IceGem extends Gem {
         if (cage != null) {
             cage.task.cancel();
             for (Location loc : cage.blocks) {
-                allCageBlocks.remove(loc);
+                allCageBlocks.remove(getLocationKey(loc));
                 Block block = loc.getBlock();
                 if (block.getType() == Material.HONEY_BLOCK) {
                     block.setType(Material.AIR);
@@ -233,7 +240,7 @@ public class IceGem extends Gem {
      * Check if a block is part of an ice cage
      */
     public boolean isIceCageBlock(Location location) {
-        return allCageBlocks.contains(location);
+        return allCageBlocks.contains(getLocationKey(location));
     }
     
     @Override
