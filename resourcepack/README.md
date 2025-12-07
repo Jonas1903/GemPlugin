@@ -21,13 +21,13 @@ This is the official resource pack for the GemPlugin Minecraft plugin. It provid
 - `gem_default.png` - Green default fallback gem texture
 
 ### Models
-The pack includes a base model (`gem_base.json`) with custom_model_data overrides:
-- 1001: Strength Gem
-- 1002: Fire Gem
-- 1003: Speed Gem
-- 1004: Astra Gem
-- 1005: Ice Gem
-- 1006: Invisibility Gem
+The pack overrides the base Minecraft item models that the plugin uses for gems:
+- `redstone.json` - Strength Gem (Red)
+- `blaze_powder.json` - Fire Gem (Orange)
+- `sugar.json` - Speed Gem (Yellow)
+- `amethyst_shard.json` - Astra/Puff Gem (Purple)
+- `ice.json` - Ice Gem (Blue)
+- `phantom_membrane.json` - Invisibility Gem (White)
 
 ## Compatibility
 
