@@ -37,4 +37,4 @@ The pack overrides the base Minecraft item models that the plugin uses for gems:
 
 ## Usage
 
-Once the resource pack is enabled and the plugin is running, all gem items will automatically display their custom textures based on their custom_model_data values set by the plugin.
+Once the resource pack is enabled and the plugin is running, all gem items will automatically display their custom textures. The plugin uses specific Minecraft materials for each gem (redstone, blaze powder, sugar, etc.), and this resource pack overrides those item textures to show the custom gem designs.
