@@ -76,7 +76,7 @@ public class AstraGem extends Gem {
     @Override
     public void removePassiveEffects(Player player) {
         stopInvisibilityCycle(player);
-        player.removePotionEffect(PotionEffectType.INVISIBILITY);
+        removeGemEffect(player, PotionEffectType.INVISIBILITY);
         currentlyInvisible.remove(player.getUniqueId());
     }
     
@@ -136,13 +136,13 @@ public class AstraGem extends Gem {
                 
                 if (state.isInvisPhase) {
                     // Apply invisibility
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 
+                    applyGemEffect(player, new PotionEffect(PotionEffectType.INVISIBILITY, 
                             invisDuration * 20 + INVISIBILITY_BUFFER_TICKS, 0, false, false, true));
                     currentlyInvisible.add(player.getUniqueId());
                     state.ticksUntilSwitch = invisDuration * 20;
                 } else {
                     // Remove invisibility
-                    player.removePotionEffect(PotionEffectType.INVISIBILITY);
+                    removeGemEffect(player, PotionEffectType.INVISIBILITY);
                     currentlyInvisible.remove(player.getUniqueId());
                     state.ticksUntilSwitch = cycleDuration * 20;
                 }
@@ -152,7 +152,7 @@ public class AstraGem extends Gem {
         passiveTasks.put(player.getUniqueId(), task);
         
         // Apply initial invisibility
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.INVISIBILITY, 
                 invisDuration * 20 + INVISIBILITY_BUFFER_TICKS, 0, false, false, true));
         currentlyInvisible.add(player.getUniqueId());
     }
@@ -208,7 +208,19 @@ public class AstraGem extends Gem {
         // Deal damage if hit
         if (result != null && result.getHitEntity() instanceof LivingEntity) {
             LivingEntity target = (LivingEntity) result.getHitEntity();
-            target.damage(7.0); // 3.5 hearts = 7.0 damage points
+            
+            // Bypass armor by subtracting health directly
+            double damageAmount = 7.0; // 3.5 hearts = 7.0 damage points
+            double currentHealth = target.getHealth();
+            double newHealth = currentHealth - damageAmount;
+            
+            if (newHealth <= 0) {
+                // If this would kill the target, use damage() as fallback for proper death handling
+                target.damage(damageAmount);
+            } else {
+                // Subtract health directly to bypass armor
+                target.setHealth(newHealth);
+            }
             
             // Play hit effect
             Location hitLoc = result.getHitPosition().toLocation(world);

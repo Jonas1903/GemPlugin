@@ -68,13 +68,13 @@ public class FireGem extends Gem {
     
     @Override
     public void applyPassiveEffects(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 
                 PotionEffect.INFINITE_DURATION, 0, false, false, true));
     }
     
     @Override
     public void removePassiveEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+        removeGemEffect(player, PotionEffectType.FIRE_RESISTANCE);
         stopAura(player);
     }
     

@@ -65,16 +65,16 @@ public class SpeedGem extends Gem {
     
     @Override
     public void applyPassiveEffects(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.SPEED, 
                 PotionEffect.INFINITE_DURATION, 0, false, false, true));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.HASTE, 
                 PotionEffect.INFINITE_DURATION, 2, false, false, true));
     }
     
     @Override
     public void removePassiveEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.SPEED);
-        player.removePotionEffect(PotionEffectType.HASTE);
+        removeGemEffect(player, PotionEffectType.SPEED);
+        removeGemEffect(player, PotionEffectType.HASTE);
         hasteBoostActive.remove(player.getUniqueId());
     }
     
@@ -92,7 +92,7 @@ public class SpeedGem extends Gem {
         hasteBoostActive.add(player.getUniqueId());
         
         // Apply Haste V (which overrides the passive Haste III)
-        player.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.HASTE, 
                 duration * 20, 4, false, false, true));
         
         MessageUtils.sendSuccess(player, "Haste Boost activated!");
