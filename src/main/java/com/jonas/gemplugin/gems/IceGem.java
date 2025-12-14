@@ -76,7 +76,7 @@ public class IceGem extends Gem {
     
     @Override
     public void removePassiveEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.SPEED);
+        removeGemEffect(player, PotionEffectType.SPEED);
         cancelSpeedTask(player);
         removeCage(player);
     }
@@ -121,13 +121,13 @@ public class IceGem extends Gem {
         cancelSpeedTask(player);
         
         // Apply Speed IV
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.SPEED, 
                 60, 3, false, false, true)); // 60 ticks = 3 seconds
         
         // Schedule removal after 3 seconds
         BukkitTask task = Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (player.isOnline()) {
-                player.removePotionEffect(PotionEffectType.SPEED);
+                removeGemEffect(player, PotionEffectType.SPEED);
             }
             speedTasks.remove(player.getUniqueId());
         }, 60L); // 60 ticks = 3 seconds

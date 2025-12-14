@@ -63,13 +63,13 @@ public class StrengthGem extends Gem {
     
     @Override
     public void applyPassiveEffects(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.STRENGTH, 
                 PotionEffect.INFINITE_DURATION, 1, false, false, true));
     }
     
     @Override
     public void removePassiveEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.STRENGTH);
+        removeGemEffect(player, PotionEffectType.STRENGTH);
         critModeActive.remove(player.getUniqueId());
     }
     

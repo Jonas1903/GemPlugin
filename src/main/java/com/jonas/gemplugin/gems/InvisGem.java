@@ -66,16 +66,16 @@ public class InvisGem extends Gem {
     
     @Override
     public void applyPassiveEffects(Player player) {
-        player.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.INVISIBILITY, 
                 PotionEffect.INFINITE_DURATION, 0, false, false, true));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 
+        applyGemEffect(player, new PotionEffect(PotionEffectType.SPEED, 
                 PotionEffect.INFINITE_DURATION, 1, false, false, true));
     }
     
     @Override
     public void removePassiveEffects(Player player) {
-        player.removePotionEffect(PotionEffectType.INVISIBILITY);
-        player.removePotionEffect(PotionEffectType.SPEED);
+        removeGemEffect(player, PotionEffectType.INVISIBILITY);
+        removeGemEffect(player, PotionEffectType.SPEED);
         fullInvisActive.remove(player.getUniqueId());
         
         // Make sure player is visible again
