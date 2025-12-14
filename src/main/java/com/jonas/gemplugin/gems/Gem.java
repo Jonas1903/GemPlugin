@@ -96,6 +96,7 @@ public abstract class Gem {
      */
     public void cleanup(Player player) {
         removePassiveEffects(player);
+        cleanupGemEffects(player);
     }
     
     /**

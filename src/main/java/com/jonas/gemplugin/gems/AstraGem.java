@@ -212,10 +212,10 @@ public class AstraGem extends Gem {
             // Bypass armor by subtracting health directly
             double damageAmount = 7.0; // 3.5 hearts = 7.0 damage points
             double currentHealth = target.getHealth();
-            double newHealth = currentHealth - damageAmount;
+            double newHealth = Math.max(0, currentHealth - damageAmount);
             
             if (newHealth <= 0) {
-                // If this would kill the target, use damage() as fallback for proper death handling
+                // If this would kill the target, use damage() for proper death handling
                 target.damage(damageAmount);
             } else {
                 // Subtract health directly to bypass armor
